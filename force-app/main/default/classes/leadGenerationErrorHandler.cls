@@ -28,6 +28,7 @@ public with sharing class leadGenerationErrorHandler {
             errorObj.Monthly_Orders__c = monthlyOrders;
             errorObj.Guest_Emails__c = guestEmails;
 
+            System.debug(errorObj);
             if (errorObj.Lead_Source__c == 'Day Schedule') {
                 Map<String, Object> booking = (Map<String, Object>)body.get('booking');
                 Map<String, Object> invitee = (Map<String, Object>)body.get('invitee');
@@ -65,7 +66,7 @@ public with sharing class leadGenerationErrorHandler {
                     errorObj.Scheduled_Start_Time__c = convertToDateTime((String)booking.get('start_at'));
                     errorObj.Scheduled_End_Time__c = convertToDateTime((String)booking.get('end_at'));
                 }
-
+                
             } else if (errorObj.Lead_Source__c == 'Tawk.to') {
                 errorObj.Source_Id__c = (String)body.get('chatId');
             } else if (errorObj.Lead_Source__c == 'Contact Form 7') {
@@ -88,6 +89,9 @@ public with sharing class leadGenerationErrorHandler {
                     errorObj.utm_content__c = (String)body.get('utm_content');
                 }                   
             }
+
+           
+            
             insert errorObj;
             
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();

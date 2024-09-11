@@ -15,14 +15,34 @@ public with sharing class errorHandlerTriggerHandler {
             List<lead> leadsToCreate = new List<lead>();
             List<Error_Handler__c> recordsToUpdate = new List<Error_Handler__c>();
             for (Error_Handler__c newRecord : newRecordsList) {
+                System.debug('Inside For');
                 if (!newRecord.isEdited__c) {
+                    System.debug('Inside If');
                     lead newLead = new lead();
+                    String cleanedPhone = '';
+                    if (newRecord.Error_Message__c != null && newRecord.Error_Message__c.contains('Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Please use the accurate format is [+][country code][area code][local phone number]')) {
+                        if (newRecord.Phone__c != null) {
+                           
+                            for (Integer i = 0; i < newRecord.Phone__c.length(); i++) {
+                                String currentChar = newRecord.Phone__c.substring(i, i+1);
+                                if(i == 0 && currentChar != '+'){
+                                    cleanedPhone = '+' + currentChar; 
+                                } else if( i != 0 && currentChar != '+' && (currentChar >= '0' && currentChar <= '9') ){
+                                    cleanedPhone += currentChar;
+                                }
+                            }
+                        }
+                        
+                        
+                        
+                        System.debug('Custom validation exception found in Error_Message__c');
+                    }
                     newLead.LastName = newRecord.Lead_Name__c;
                     newLead.Company = newRecord.Company__c;
                     newLead.Email = newRecord.Email__c;
                     newLead.Corporate_Email__c = newRecord.Email__c;
-                    newLead.Phone = newRecord.Phone__c;
-                    newLead.Mobile__c = newRecord.Phone__c;
+                    newLead.Phone = cleanedPhone;
+                    newLead.Mobile__c = cleanedPhone;
                     newLead.LeadSource = 'Inbound Lead';
 
                     if (newRecord.Lead_Source__c == 'Day Schedule') {
